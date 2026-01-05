@@ -1,115 +1,130 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    ApplicationBuilder, CommandHandler,
-    CallbackQueryHandler, MessageHandler, filters
-)
-import asyncio
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
-TOKEN = "8582644550:AAGX-1pHFwhpUYGIq-P4I-DIy6mbZGv5Ofo"
+# ================= BOT TOKEN =================
+BOT_TOKEN = "8582644550:AAGX-1pHFwhpUYGIq-P4I-DIy6mbZGv5Ofo"
 
+# ================= CHANNELS =================
+# Public channel usernames ONLY (bot must be admin)
 CHANNELS = [
-    "@hack4hub",
+    "@hack4hub"
 ]
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-keyboard = [
-    [InlineKeyboardButton("📢 Channel 1", url="https://t.me/hack4hub")],
-    [InlineKeyboardButton("📢 Channel 2", url="https://t.me/+XBpsoO5Ep0ZkZjk0")],
-    [InlineKeyboardButton("📢 Channel 3", url="https://t.me/+SDB9fB8svGQ1ODRl")],
-    [InlineKeyboardButton("📢 Channel 
+# Join links (private/public both allowed)
+CHANNEL_LINKS = [
+    ("📢 Channel 1", "https://t.me/hack4hub"),
+    ("📢 Channel 2", "https://t.me/+XBpsoO5Ep0ZkZjk0"),
+    ("📢 Channel 3", "https://t.me/+SDB9fB8svGQ1ODRl"),
 ]
 
-reply_markup = InlineKeyboardMarkup(keyboard)
+# ================= MEMORY =================
+# (restart hone par reset ho jaayega)
+verified_users = set()
 
-user_data = {}
+# ================= START COMMAND =================
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    name = f"@{user.username}" if user.username else user.first_name
 
-async def start(update, context):
-    user_id = update.message.from_user.id
-
-    # Agar pehle se verified hai
-    if user_data.get(user_id) == "verified":
+    # Agar user pehle se verified hai
+    if user.id in verified_users:
         await update.message.reply_text(
-            "✅ You are already verified.\n👉 Enter /ban"
+            f"Hey {name} 👋\n\n"
+            "Welcome to Teleport Bot 🚀\n"
+            "Made by @umeekabhai and @indexAbhisek\n\n"
+            "👉 Enter /ban to continue"
         )
         return
 
-    keyboard = [[InlineKeyboardButton(text, url=link)] for text, link in CHANNEL_LINKS]
-    keyboard.append([InlineKeyboardButton("Joined ✅", callback_data="check_join")])
+    # Join buttons
+    keyboard = []
+    for text, link in CHANNEL_LINKS:
+        keyboard.append([InlineKeyboardButton(text, url=link)])
+
+    keyboard.append([InlineKeyboardButton("✅ Joined", callback_data="check_join")])
 
     await update.message.reply_text(
-        "🔒 *System Locked*\n\nJoin all 3 channels to continue.",
-        parse_mode="Markdown",
+        "🔒 Please join all channels to continue:",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-async def check_join(update, context):
+# ================= CHECK JOIN =================
+async def check_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    user_id = query.from_user.id
 
-    # Force join check (sirf public channel verify ho sakta hai)
-    try:
-        member = await context.bot.get_chat_member(CHANNELS[0], user_id)
-        if member.status == "left":
+    user = query.from_user
+    name = f"@{user.username}" if user.username else user.first_name
+
+    # Sirf PUBLIC channels verify honge
+    for channel in CHANNELS:
+        try:
+            member = await context.bot.get_chat_member(channel, user.id)
+            if member.status not in ["member", "administrator", "creator"]:
+                await query.edit_message_text(
+                    "❌ You have not joined the required channel.\n\n"
+                    "Please join and click ✅ Joined again."
+                )
+                return
+        except:
             await query.edit_message_text(
-                "❌ You have not joined all channels.\nPlease join all channels to continue."
+                "⚠️ Unable to verify channel.\n"
+                "Make sure the bot is admin in the channel."
             )
             return
-    except:
-        await query.edit_message_text(
-            "❌ Join check failed.\nPlease join all channels properly."
-        )
-        return
 
-    user_data[user_id] = "verified"
+    # Verified
+    verified_users.add(user.id)
+
     await query.edit_message_text(
-        "✅ *Now you are able to access the bot*\n\n👉 Enter `/ban`",
-        parse_mode="Markdown"
+        f"Hey {name} 👋\n\n"
+        "Welcome to Teleport Bot 🚀\n"
+        "Made by @umeekabhai and @indexAbhisek\n\n"
+        "👉 Enter /ban to continue"
     )
 
-async def ban_cmd(update, context):
-    user_id = update.message.from_user.id
+# ================= FAKE BAN COMMAND =================
+async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
 
-    if user_data.get(user_id) != "verified":
+    if user.id not in verified_users:
         await update.message.reply_text(
-            "❌ Access denied.\nPlease use /start and complete verification."
+            "❌ You are not verified yet.\n"
+            "Please use /start and complete verification first."
         )
         return
 
-    user_data[user_id] = "awaiting_username"
-    await update.message.reply_text(
-        "💀 *Mass Report Tool Activated*\n\nSend the Username now (e.g., `@target_user`)",
-        parse_mode="Markdown"
-    )
-
-async def username_input(update, context):
-    user_id = update.message.from_user.id
-
-    if user_data.get(user_id) != "awaiting_username":
+    if not context.args:
+        await update.message.reply_text(
+            "💀 Mass Report Tool Activated\n\n"
+            "Send the username now (e.g., /ban @target_user)"
+        )
         return
 
-    username = update.message.text
-    await update.message.reply_text(
-        f"🚀 Processing target **{username}** ...",
-        parse_mode="Markdown"
-    )
+    target = context.args[0]
 
-    counts = [1, 10, 30, 60, 100, 150, 200]
-    for c in counts:
-        await asyncio.sleep(1)
-        await update.message.reply_text(f"Report sent by bot ✅ {c}")
+    # Fake progress messages
+    await update.message.reply_text("🚀 Sending reports...")
+    await update.message.reply_text("Report sent by bot ✅ 1")
+    await update.message.reply_text("Report sent by bot ✅ 10")
+    await update.message.reply_text("Report sent by bot ✅ 30")
 
     await update.message.reply_text(
-        "✅ Mission Complete!\nThanks for using the system."
+        f"✅ Verification Successful!\n\n"
+        f"Target: {target}\n"
+        "Status: Reports sent successfully 🎯"
     )
 
-    # verified hi rehne do, dobara join na pooche
-    user_data[user_id] = "verified"
+# ================= MAIN =================
+def main():
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-app = ApplicationBuilder().token(TOKEN).build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CallbackQueryHandler(check_join))
-app.add_handler(CommandHandler("ban", ban_cmd))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, username_input))
-app.run_polling()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("ban", ban))
+    app.add_handler(CallbackQueryHandler(check_join, pattern="check_join"))
+
+    print("Bot is running...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
