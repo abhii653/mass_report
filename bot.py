@@ -17,8 +17,7 @@ keyboard = [
     [InlineKeyboardButton("📢 Channel 1", url="https://t.me/hack4hub")],
     [InlineKeyboardButton("📢 Channel 2", url="https://t.me/+XBpsoO5Ep0ZkZjk0")],
     [InlineKeyboardButton("📢 Channel 3", url="https://t.me/+SDB9fB8svGQ1ODRl")],
-    [InlineKeyboardButton("📢 Channel 4", url="https://t.me/+92YaHItBiIo3ZWM1")],  # ✅ NEW
-    [InlineKeyboardButton("Joined ✅", callback_data="check_join")]
+    [InlineKeyboardButton("📢 Channel 
 ]
 
 reply_markup = InlineKeyboardMarkup(keyboard)
