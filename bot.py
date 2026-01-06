@@ -15,7 +15,7 @@ CHANNELS = [
 # ================= JOIN BUTTON LINKS =================
 CHANNEL_LINKS = [
     ("📢 Channel 1", "https://t.me/hack4hub"),
-    ("📢 Channel 2", "https://t.me/+XBpsoO5Ep0ZkZjk0"),
+    ("📢 Channel 2", "https://t.me/Ha4kers"),
     ("📢 Channel 3", "https://t.me/+SDB9fB8svGQ1ODRl"),
 ]
 
