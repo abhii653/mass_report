@@ -78,7 +78,7 @@ async def check_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.edit_message_text(
         f"Hey {name} 👋\n\n"
         "Welcome to Teleport Bot 🚀\n"
-        "Made by @umeekabhai and @indexAbhisek\n\n"
+        "Made by @Rudeus_ssss and @indexAbhisek\n\n"
         "👉 Enter /ban to continue"
     )
 
