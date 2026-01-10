@@ -11,7 +11,8 @@ TOKEN = "8582644550:AAGX-1pHFwhpUYGIq-P4I-DIy6mbZGv5Ofo"
 # ================= FORCE JOIN (ONLY CHANNEL 1) =================
 CHANNELS = [
     "@hack4hub",
-    "Ha4kerso"
+    "Ha4kerso" ,
+    "LighZYagami"
 ]
 
 # ================= JOIN BUTTON LINKS =================
@@ -20,6 +21,7 @@ CHANNEL_LINKS = [
     ("📣 Join Channel 2", "https://t.me/ha4ker0"),
     ("⭐ Join Channel 3", "https://t.me/+SDB9fB8svGQ1ODRl"),
 ("😈 Join Channel 4", "https://t.me/Ha4kerso"),
+("💗 Join Channel 5", "https://t.me/LighZYagami"),
 ]
 
 # ================= MEMORY =================
